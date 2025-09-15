@@ -8,7 +8,7 @@ repo = matlab.git.GitRepository(repoPath);
 
 % 执行pull操作，从origin拉取main分支
 try
-    repo.pull('origin', 'main');
+    repo.pull();
     disp('成功从 https://github.com/vangee0528/mfds.git 拉取最新版本。');
 catch ME
     disp(['拉取失败：', ME.message]);
