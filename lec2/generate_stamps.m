@@ -1,17 +1,29 @@
-function data = generate_stamps(N)
-    mu0 = -1;
-    mu1 = 1;
-    sigma = 0.5;
+function data = generate_stamps(N, M, K)
+    % N: 样本总数
+    % M: 特征维度
+    % K: 类别数
 
-    % x|y=0 ~ N(mu0, sigma^2)
-    N0 = fix(N/2);
-    x0 = randn(N0,1) * sigma + mu0;
-    y0 = zeros(N0,1);
-
-    % x|y=1 ~ N(mu1, sigma^2)
-    x1 = randn(N-N0,1) * sigma + mu1;
-    y1 = ones(N-N0,1);
+    % 为每个类别生成均值向量
+    mus = randn(K, M) * 2; % 随机生成K个M维的均值向量
     
-    % Combine the two halves
-    data = [x0, y0; x1, y1];
+    % 生成一个共享的协方差矩阵
+    A = randn(M, M);
+    sigma = A * A' + eye(M); % 确保协方差矩阵是正定的
+
+    data_X = [];
+    data_Y = [];
+    
+    Nk = fix(N / K); % 每个类别的样本数
+
+    for k = 1:K
+        % 从多元正态分布中生成数据
+        X_k = mvnrnd(mus(k,:), sigma, Nk);
+        Y_k = ones(Nk, 1) * (k-1); % 类别标签从0开始
+        
+        data_X = [data_X; X_k];
+        data_Y = [data_Y; Y_k];
+    end
+    
+    % 将特征和标签合并
+    data = [data_X, data_Y];
 end

@@ -1,18 +1,32 @@
-function param = fit_lda(data)
-    X = data(:,1);
-    Y = data(:,2);
-
-    mu0 = mean(X(Y==0));
-    mu1 = mean(X(Y==1));
-    sigma_squared = sum((X-mean(X)).^2) / (length(X)-1);
-
-    phi = sum(Y) / length(Y);
-    c0 = mu0/sigma_squared;
-    d0 = mu1/sigma_squared;
-    d0 = log(1-phi) - c0 / 2
-    c1 = mu1/sigma_squared;
-
-    d1 = log(phi) - c1 / 2;
-    param = [c0, d0; c1, d1];
-
+function param = fit_lda(data, K)
+    % data: 训练数据，最后一列是标签
+    % K: 类别数
+    
+    X = data(:, 1:end-1);
+    Y = data(:, end);
+    [N, M] = size(X);
+    
+    mu_hat = zeros(K, M);
+    p_hat = zeros(K, 1);
+    
+    for k = 0:K-1
+        X_k = X(Y == k, :);
+        N_k = size(X_k, 1);
+        mu_hat(k+1, :) = mean(X_k);
+        p_hat(k+1) = N_k / N;
+    end
+    
+    Sigma_hat = zeros(M, M);
+    for k = 0:K-1
+        X_k = X(Y == k, :);
+        mu_k = mu_hat(k+1, :);
+        for i = 1:size(X_k, 1)
+            Sigma_hat = Sigma_hat + (X_k(i, :) - mu_k)' * (X_k(i, :) - mu_k);
+        end
+    end
+    Sigma_hat = Sigma_hat / (N - K);
+    
+    param.mu = mu_hat;
+    param.p = p_hat;
+    param.Sigma = Sigma_hat;
 end
