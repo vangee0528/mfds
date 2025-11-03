@@ -1,0 +1,274 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[UTF8]{ctex}         % 中文支持
+\usepackage{amsmath, amssymb}   % 数学公式
+\usepackage{geometry}           % 页面设置
+\usepackage{hyperref}           % 超链接
+\usepackage{graphicx}           % 插图
+\usepackage{enumerate}          % 枚举
+\usepackage{booktabs}           % 表格
+\usepackage{lmodern}            % 现代字体
+\usepackage{microtype}          % 微排版优化
+\usepackage{xcolor}             % 颜色支持
+\usepackage[most]{tcolorbox}   % 彩色盒子
+\geometry{left=2cm, right=2cm, top=2cm, bottom=2.5cm}
+
+\definecolor{ProblemFrame}{HTML}{2F5597}
+\definecolor{ProblemBack}{HTML}{EEF2FB}
+\definecolor{SolutionColor}{HTML}{007060}
+
+\hypersetup{
+	colorlinks=true,
+	linkcolor=ProblemFrame,
+	citecolor=SolutionColor,
+	urlcolor=ProblemFrame
+}
+
+% --- 大标题样式调整 ---
+\makeatletter
+\def\@maketitle{%
+  \newpage
+  \null
+  \vspace{-2em} % 减少顶部空白
+  \begin{center}%
+  \let \footnote \thanks
+    {\LARGE \@title \par}%
+    \vskip 1.5em%
+    {\large
+      \lineskip .5em%
+      \begin{tabular}[t]{c}%
+        \@author
+      \end{tabular}\par}%
+    \vskip 1em%
+    {\large \@date}%
+  \end{center}%
+  \par
+  \vskip 1.5em}
+\makeatother
+
+
+% --- 新的题解环境 ---
+\newtcolorbox{exercisebox}[2][]{
+    enhanced,
+    breakable,
+    sharp corners,
+    colback=white,
+    colframe=black!15!white,
+    coltitle=white,
+    fonttitle=\bfseries\large,
+    attach boxed title to top left={xshift=1.5mm, yshift*=-\tcboxedtitleheight/2},
+    boxed title style={colback=ProblemFrame, sharp corners},
+    title={#2},
+    before skip=18pt,
+    after skip=18pt,
+    #1
+}
+
+\newtcolorbox{problemnobox}[1][]{
+    enhanced,
+    sharp corners,
+    boxrule=0.8pt,
+    colframe=black!25!white,
+    colback=ProblemBack,
+    breakable,
+    top=4pt, bottom=4pt, left=5pt, right=5pt,
+    #1
+}
+
+\newenvironment{exercise}[2][]
+  {\begin{exercisebox}[#1]{#2}\ignorespaces}
+  {\end{exercisebox}}
+
+\newenvironment{problem}
+  {\begin{problemnobox}\ignorespaces}
+  {\end{problemnobox}}
+
+\newenvironment{solution}
+  {\par\noindent\textbf{\color{SolutionColor}解：}\ignorespaces}
+  {}
+
+\newenvironment{proof}
+  {\par\noindent\textbf{\color{SolutionColor}证明：}\ignorespaces}
+  {}
+
+\setlength{\parskip}{0.85em}
+\setlength{\parindent}{2em}
+
+\title{数据科学的数学基础 \\ 第{{4}}次理论作业 }
+\author{ 陈万祺 \quad 3220102895}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{exercise}{Problem 1}
+\begin{problem}
+Show that in the space of \(\mathbb{R}^n\), for any \(1 \leq p_1 < p_2 \leq +\infty\), there exist \(c_1 > 0\) and \(c_2 > 0\), which depend on \(n\), \(p_1\) and \(p_2\), such that for any \(x \in \mathbb{R}^n\), it holds
+\[
+c_1\|x\|_{p_1} \leq \|x\|_{p_2} \leq c_2\|x\|_{p_1}.
+\]
+\end{problem}
+\begin{solution}
+
+首先，考虑 \(p_2 < +\infty\) 的情况。对于任意 \(x \in \mathbb{R}^n\)，我们有
+
+\[
+\|x\|_{p_2}^{p_2} = \sum_{i=1}^n |x_i|^{p_2}.
+\]
+
+由于 \(p_1 < p_2\)，利用 Hölder 不等式。设 \(q = \frac{p_2}{p_1} > 1\)，则 \(q' = \frac{q}{q-1} = \frac{p_2}{p_2 - p_1}\)。根据 Hölder 不等式，
+
+\[
+\sum_{i=1}^n |x_i|^{p_2} = \sum_{i=1}^n (|x_i|^{p_1})^{q} \leq \left( \sum_{i=1}^n |x_i|^{p_1} \right)^{q} \cdot \left( \sum_{i=1}^n 1^{q'} \right)^{1/q'} = \|x\|_{p_1}^{p_2} \cdot n^{1 - p_1/p_2}.
+\]
+
+因此，
+
+\[
+\|x\|_{p_2} \leq n^{(1 - p_1/p_2)/p_2} \|x\|_{p_1} = n^{1/p_1 - 1/p_2} \|x\|_{p_1}.
+\]
+
+所以，我们可以取 \(c_2 = n^{1/p_1 - 1/p_2}\)。
+
+接下来，考虑 \(p_2 = +\infty\) 的情况。此时，
+
+\[
+\|x\|_{\infty} = \max_{1 \leq i \leq n} |x_i|.
+\]
+
+对于任意 \(x \in \mathbb{R}^n\)，我们有
+
+\[
+|x_i| \leq \left( \sum_{j=1}^n |x_j|^{p_1} \right)^{1/p_1} = \|x\|_{p_1},
+\]
+
+对于所有 \(i = 1, \dots, n\)。因此，
+
+\[
+\|x\|_{\infty} \leq \|x\|_{p_1}.
+\]
+
+所以，我们可以取 \(c_2 = 1\)。
+
+接下来证明不等式的左侧部分。
+
+首先，考虑 \(p_2 < +\infty\) 的情况。对于任意 \(x \in \mathbb{R}^n\)，我们有
+
+\[
+\|x\|_{p_1}^{p_1} = \sum_{i=1}^n |x_i|^{p_1}.
+\]
+
+由于 \(p_1 < p_2\)，根据 Jensen 不等式，
+
+\[
+\left( \frac{1}{n} \sum_{i=1}^n |x_i|^{p_1} \right)^{p_2/p_1} \leq \frac{1}{n} \sum_{i=1}^n (|x_i|^{p_1})^{p_2/p_1} = \frac{1}{n} \sum_{i=1}^n |x_i|^{p_2}.
+\]
+
+因此，
+
+\[
+\left( \frac{\|x\|_{p_1}^{p_1}}{n} \right)^{p_2/p_1} \leq \frac{\|x\|_{p_2}^{p_2}}{n}.
+\]
+
+整理得
+
+\[
+\|x\|_{p_1}^{p_2} \leq n^{p_2/p_1 - 1} \|x\|_{p_2}^{p_2}.
+\]
+
+因此，
+
+\[
+\|x\|_{p_1} \leq n^{1/p_1 - 1/p_2} \|x\|_{p_2}.
+\]
+
+所以，我们可以取 \(c_1 = n^{1/p_2 - 1/p_1}\)。
+
+接下来，考虑 \(p_2 = +\infty\) 的情况。此时，
+
+\[
+\|x\|_{\infty} = \max_{1 \leq i \leq n} |x_i|.
+\]
+
+对于任意 \(x \in \mathbb{R}^n\)，我们有
+
+\[
+\|x\|_{p_1}^{p_1} = \sum_{i=1}^n |x_i|^{p_1} \leq n \cdot (\max_{1 \leq i \leq n} |x_i|)^{p_1} = n \|x\|_{\infty}^{p_1}.
+\]
+
+因此，
+
+\[
+\|x\|_{p_1} \leq n^{1/p_1} \|x\|_{\infty}.
+\]
+
+所以，我们可以取 \(c_1 = n^{-1/p_1}\)。
+
+综上所述，对于任意 \(1 \leq p_1 < p_2 \leq +\infty\)，存在依赖于 \(n\)、\(p_1\) 和 \(p_2\) 的常数 \(c_1 > 0\) 和 \(c_2 > 0\)，使得对于任意 \(x \in \mathbb{R}^n\)，有
+
+\[
+c_1\|x\|_{p_1} \leq \|x\|_{p_2} \leq c_2\|x\|_{p_1}.
+\]
+
+具体地，当 \(p_2 < +\infty\) 时，可以取 \(c_1 = n^{1/p_2 - 1/p_1}\) 和 \(c_2 = n^{1/p_1 - 1/p_2}\)；当 \(p_2 = +\infty\) 时，可以取 \(c_1 = n^{-1/p_1}\) 和 \(c_2 = 1\)。
+
+\end{solution}
+\end{exercise}
+
+\begin{exercise}{Problem 2}
+\begin{problem}
+Prove or disprove: for any \(x \in \mathbb{R}^n\), it holds
+\[
+\|x\|_1 \|x\|_\infty \leq \frac{1 + \sqrt{n}}{2} \|x\|_2^2.
+\]
+\end{problem}
+\begin{solution}
+
+不妨假设 \(\|x\|_\infty = 1\)（若 \(x = 0\) 则不等式显然成立）。令 \(y_i = |x_i|\)，则 \(y_i \in [0, 1]\) 且 \(\max_i y_i = 1\)。此时需证：
+\[
+\sum_{i=1}^n y_i \leq \frac{1 + \sqrt{n}}{2} \sum_{i=1}^n y_i^2.
+\]
+
+等价地：
+\[
+(1 + \sqrt{n}) \sum_{i=1}^n y_i^2 - 2 \sum_{i=1}^n y_i \geq 0.
+\]
+
+考虑函数 \(f(t) = 2t - (1 + \sqrt{n})t^2\)，其中 \(t \in [0, 1]\)。这是开口向下的二次函数，顶点在 \(t = \frac{1}{1 + \sqrt{n}}\) 处，最大值为 \(\frac{1}{1 + \sqrt{n}}\)。因此对任意 \(t \in [0, 1]\)：
+\[
+2t - (1 + \sqrt{n})t^2 \leq \frac{1}{1 + \sqrt{n}}.
+\]
+
+不失一般性，设 \(y_1 = 1\)。则：
+- 当 \(i = 1\) 时：\(2 - (1 + \sqrt{n}) = 1 - \sqrt{n}\)
+- 当 \(i = 2, \dots, n\) 时：\(2y_i - (1 + \sqrt{n})y_i^2 \leq \frac{1}{1 + \sqrt{n}}\)
+
+对所有 \(i\) 求和：
+\[
+\sum_{i=1}^n \left[ 2y_i - (1 + \sqrt{n})y_i^2 \right] \leq (1 - \sqrt{n}) + (n - 1) \cdot \frac{1}{1 + \sqrt{n}}.
+\]
+
+计算右边：
+\[
+(1 - \sqrt{n}) + \frac{n - 1}{1 + \sqrt{n}} = (1 - \sqrt{n}) + \frac{(\sqrt{n} - 1)(\sqrt{n} + 1)}{1 + \sqrt{n}} = (1 - \sqrt{n}) + (\sqrt{n} - 1) = 0.
+\]
+
+因此：
+\[
+\sum_{i=1}^n \left[ 2y_i - (1 + \sqrt{n})y_i^2 \right] \leq 0,
+\]
+即：
+\[
+2 \sum y_i \leq (1 + \sqrt{n}) \sum y_i^2 \quad \Longleftrightarrow \quad \sum y_i \leq \frac{1 + \sqrt{n}}{2} \sum y_i^2.
+\]
+
+由于在假设 \(\|x\|_\infty = 1\) 下不等式成立，且不等式是齐次的，故对任意 \(x \in \mathbb{R}^n\) 均成立。
+
+\vspace{0.2cm}
+\noindent 因此，原不等式成立。
+
+\end{solution}
+\end{exercise}
+
+
+\end{document}
