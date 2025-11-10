@@ -7,26 +7,37 @@ targetFun = @(x) x.^3 - 2*x + exp(-x);
 targetFirstDeriv = @(x) 3*x.^2 - 2 - exp(-x);
 targetSecondDeriv = @(x) 6*x + exp(-x);
 
+scriptDir = fileparts(mfilename('fullpath'));
+figDir = fullfile(scriptDir, 'figures');
+if ~exist(figDir, 'dir')
+	mkdir(figDir);
+end
+
 xTrain = linspace(-2, 2, 200)';
 yTrain = targetFun(xTrain);
 
-configs(1) = struct('name', '2x30_tanh', 'hiddenSizes', [30 30], 'activation', 'tanh', ...
-	'learningRate', 0.01, 'momentum', 0.9, 'numEpochs', 1500);
-configs(2) = struct('name', '3x20_tanh', 'hiddenSizes', [20 20 20], 'activation', 'tanh', ...
-	'learningRate', 0.01, 'momentum', 0.9, 'numEpochs', 2000);
-configs(3) = struct('name', '2x40_sigmoid', 'hiddenSizes', [40 40], 'activation', 'sigmoid', ...
-	'learningRate', 0.01, 'momentum', 0.9, 'numEpochs', 2500);
+configs = struct( ...
+	'name', {'1x20_tanh', '2x30_tanh', '3x20_tanh', '4x30_tanh', '2x40_sigmoid', '3x30_sigmoid'}, ...
+	'hiddenSizes', {[20], [30 30], [20 20 20], [30 30 30 30], [40 40], [30 30 30]}, ...
+	'activation', {'tanh', 'tanh', 'tanh', 'tanh', 'sigmoid', 'sigmoid'}, ...
+	'learningRate', {0.01, 0.01, 0.01, 0.01, 0.01, 0.01}, ...
+	'momentum', {0.9, 0.9, 0.9, 0.9, 0.9, 0.9}, ...
+	'numEpochs', {1200, 1500, 2000, 2500, 2500, 3000} ...
+);
 
 numConfigs = numel(configs);
 results(numConfigs) = struct('config', [], 'net', [], 'lossHistory', [], 'trainPred', [], ...
 	'trainMSE', [], 'finalLoss', []);
 
-figure(1); clf;
-tlFits = tiledlayout(numConfigs, 1, 'TileSpacing', 'compact', 'Padding', 'compact');
+numCols = min(numConfigs, 2);
+numRows = ceil(numConfigs / numCols);
+
+figFits = figure(1); clf;
+tlFits = tiledlayout(numRows, numCols, 'TileSpacing', 'compact', 'Padding', 'compact');
 title(tlFits, '训练集拟合对比');
 
-figure(2); clf;
-tlLoss = tiledlayout(numConfigs, 1, 'TileSpacing', 'compact', 'Padding', 'compact');
+figLoss = figure(2); clf;
+tlLoss = tiledlayout(numRows, numCols, 'TileSpacing', 'compact', 'Padding', 'compact');
 title(tlLoss, '训练损失曲线');
 
 for idx = 1:numConfigs
@@ -89,7 +100,7 @@ avgErr2 = mean(relErr2);
 fprintf('平均一阶导数相对误差: %.4e\n', avgErr1);
 fprintf('平均二阶导数相对误差: %.4e\n', avgErr2);
 
-figure(3); clf;
+figDeriv = figure(3); clf;
 tlDeriv = tiledlayout(3, 1, 'TileSpacing', 'compact', 'Padding', 'compact');
 title(tlDeriv, sprintf('导数比较 | %s', bestResult.config.name));
 
@@ -117,6 +128,10 @@ xlabel('x');
 ylabel('相对误差');
 legend('一阶', '二阶', 'Location', 'best');
 title('相对误差分布');
+
+saveFigure(figFits, fullfile(figDir, 'training_fits.png'));
+saveFigure(figLoss, fullfile(figDir, 'training_loss.png'));
+saveFigure(figDeriv, fullfile(figDir, 'derivative_comparison.png'));
 
 %% 辅助函数
 function [trainedNet, lossHistory] = trainConfiguration(config, xTrain, yTrain)
@@ -180,4 +195,12 @@ function [output, derivative, secondDerivative] = netValueAndDerivatives(net, x)
 	output = forward(net, x);
 	derivative = dlgradient(output, x, 'EnableHigherDerivatives', true);
 	secondDerivative = dlgradient(derivative, x);
+end
+
+function saveFigure(figHandle, filePath)
+	try
+		exportgraphics(figHandle, filePath, 'Resolution', 300);
+	catch
+		saveas(figHandle, filePath);
+	end
 end
