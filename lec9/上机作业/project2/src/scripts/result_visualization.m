@@ -3,6 +3,8 @@ function result_visualization()
 %
 %   Run after MAIN_ANALYSIS to refresh figures without re-training models.
 
+    script_dir = fileparts(mfilename('fullpath'));
+    bootstrap_project_environment(script_dir);
     paths = project_paths();
     params = project_parameters(paths);
     ensure_directories(paths);
@@ -64,4 +66,22 @@ function feature_names = derive_feature_names(params, n_features)
         end
     end
     feature_names = arrayfun(@(i) sprintf('Feature %d', i), 1:n_features, 'UniformOutput', false);
+end
+
+function project_root = bootstrap_project_environment(script_dir)
+    project_root = fileparts(fileparts(script_dir));
+    addpath_if_missing(project_root);
+    addpath_if_missing(fullfile(project_root, 'src'));
+    addpath_if_missing(fullfile(project_root, 'config'));
+end
+
+function addpath_if_missing(target_path)
+    if ~isfolder(target_path)
+        warning('Path %s does not exist and cannot be added.', target_path);
+        return;
+    end
+    path_entries = strsplit(path, pathsep);
+    if ~any(strcmp(path_entries, target_path))
+        addpath(target_path);
+    end
 end

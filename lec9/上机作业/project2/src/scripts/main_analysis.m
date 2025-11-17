@@ -5,6 +5,8 @@ function main_analysis()
 %   hyperparameter selection, evaluation, and artifact generation. Run it
 %   after updating the dataset under data/raw/diabetes.csv.
 
+    script_dir = fileparts(mfilename('fullpath'));
+    bootstrap_project_environment(script_dir);
     paths = project_paths();
     params = project_parameters(paths);
     ensure_directories(paths);
@@ -43,6 +45,25 @@ function ensure_directories(paths)
         if ~exist(dirs{i}, 'dir')
             mkdir(dirs{i});
         end
+    end
+end
+
+function project_root = bootstrap_project_environment(script_dir)
+%BOOTSTRAP_PROJECT_ENVIRONMENT Ensure config/src folders are on MATLAB path.
+    project_root = fileparts(fileparts(script_dir));
+    addpath_if_missing(project_root);
+    addpath_if_missing(fullfile(project_root, 'src'));
+    addpath_if_missing(fullfile(project_root, 'config'));
+end
+
+function addpath_if_missing(target_path)
+    if ~isfolder(target_path)
+        warning('Path %s does not exist and cannot be added.', target_path);
+        return;
+    end
+    path_entries = strsplit(path, pathsep);
+    if ~any(strcmp(path_entries, target_path))
+        addpath(target_path);
     end
 end
 
