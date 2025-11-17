@@ -1,63 +1,47 @@
-参考项目结构：
+# Project 2 · 回归方法比较
+
+本项目在 `project2/` 目录下给出了完整的 MATLAB 实验代码，用于比较普通线性回归（OLS）、岭回归（Ridge）与 Lasso 回归在 `diabetes.csv` 数据集上的表现。
+
+## 目录结构
 ```
 project2/
-│
-├── data/                           # 数据目录
-│   ├── raw/                        # 原始数据
-│   │   └── diabetes.csv            # 原始糖尿病数据集
-│   ├── processed/                  # 处理后的数据
-│   │   ├── diabetes_cleaned.mat    # 清洗后的MATLAB数据
-│   │   └── train_test_split.mat    # 训练测试集分割结果
-│   └── README.md                   # 数据说明文档
-│
-├── src/                            # 源代码目录
-│   ├── utils/                      # 工具函数
-│   │   ├── data_loader.m           # 数据加载函数
-│   │   ├── data_preprocessor.m     # 数据预处理函数
-│   │   ├── evaluate_model.m        # 模型评估函数
-│   │   └── plot_utilities.m        # 绘图工具函数
-│   │
-│   ├── models/                     # 模型实现
-│   │   ├── linear_regression.m     # 普通线性回归
-│   │   ├── ridge_regression.m      # 岭回归实现
-│   │   ├── lasso_regression.m      # Lasso回归实现
-│   │   └── lasso_reg.m             # 提供的Lasso对比函数
-│   │
-│   ├── scripts/                    # 主要执行脚本
-│   │   ├── main_analysis.m         # 主分析脚本
-│   │   ├── hyperparameter_tuning.m # 超参数调优
-│   │   └── result_visualization.m  # 结果可视化
-│   │
-│   └── tests/                      # 测试脚本
-│       ├── test_linear_reg.m       # 线性回归测试
-│       ├── test_ridge_reg.m        # 岭回归测试
-│       └── test_lasso_reg.m        # Lasso回归测试
-│
-├── results/                        # 结果输出目录
-│   ├── figures/                    # 生成的图表
-│   │   ├── coefficient_paths.png   # 系数路径图
-│   │   ├── mse_comparison.png      # MSE比较图
-│   │   ├── feature_importance.png  # 特征重要性图
-│   │   └── performance_plots/      # 其他性能图表
-│   │
-│   ├── models/                     # 保存的模型
-│   │   ├── best_ridge_model.mat    # 最优岭回归模型
-│   │   ├── best_lasso_model.mat    # 最优Lasso模型
-│   │   └── linear_model.mat        # 线性回归模型
-│   │
-│   └── reports/                    # 分析报告
-│       ├── performance_metrics.txt # 性能指标
-│       ├── feature_analysis.txt    # 特征分析结果
-│       └── summary_report.md       # 总结报告
-│
-├── docs/                           # 文档目录
-│   ├── theoretical_background.md   # 理论基础文档
-│   ├── implementation_notes.md     # 实现说明
-│   └── user_guide.md               # 用户指南
-│
-├── config/                         # 配置文件
-│   ├── parameters.m                # 主要参数配置
-│   └── paths.m                     # 路径配置
-│
-└── PROJECT_README.md               # 项目总说明文档
+├── data/                # 数据说明（如有需要可将 CSV 拷贝到此处）
+├── results/             # 运行后生成的表格与图像
+│   └── figures/         # 系数路径、性能对比图
+├── src/                 # 所有函数脚本
+│   ├── compute_mse.m
+│   ├── fit_lasso_regression.m
+│   ├── fit_linear_regression.m
+│   ├── fit_ridge_regression.m
+│   ├── plot_coeff_paths.m
+│   ├── plot_model_performance.m
+│   ├── predict_regression.m
+│   └── prepare_diabetes_data.m
+└── main.m               # 主脚本，一键完成实验流程
 ```
+
+## 运行方式
+1. 打开 MATLAB，将当前工作目录切换到 `project2/`。
+2. 确保 `lec9/上机作业/diabetes.csv` 存在；如需更改路径，可在 `main.m` 中修改 `dataPath`。
+3. 在命令行运行：
+   ```matlab
+   main
+   ```
+4. 程序会完成以下步骤：
+   - 读取并标准化特征，按 7:3 随机划分训练/测试集；
+   - 训练 OLS、Ridge（带 5 折交叉验证）和 Lasso（自带 CV）；
+   - 计算测试集 MSE、统计非零特征数；
+   - 绘制系数路径图、性能对比图；
+   - 输出 `results/performance_report.txt` 与 `results/performance_metrics.csv`。
+
+## 输出说明
+- `results/performance_metrics.csv`：包含每种模型的测试 MSE、非零系数数量、最优正则化系数。
+- `results/performance_report.txt`：文字总结（包括超参数列表和最优 λ）。
+- `results/figures/coefficient_paths.png`：参考 `eg` 目录作图风格的系数路径对比。
+- `results/figures/performance_comparison.png`：MSE 与稀疏性柱状图，对比三种方法。
+
+## 讨论建议
+运行完成后，可结合图表讨论：
+- Ridge 随 λ 增大系数收缩但不为零，适合缓解多重共线；
+- Lasso 会产生稀疏解，便于自动特征选择；
+- OLS 没有正则项，可能对噪声敏感。依据测试 MSE 及特征数量，选择更适合该数据集的模型并说明原因。
